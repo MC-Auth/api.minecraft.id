@@ -33,7 +33,7 @@ app.use(function (req, res, next) {
     next();
 });
 
-app.use(express.static(__dirname, {dotfiles: 'allow'}));
+app.use("/.well-known",express.static(".well-known"));
 
 
 app.use(cookieParser(config.cookieSecret));
