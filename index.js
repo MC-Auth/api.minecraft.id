@@ -12,6 +12,11 @@ let fs = require("fs");
 let config = require("./config");
 let port = process.env.PORT || config.port || 3021;
 
+String.prototype.replaceAll = function(search, replacement) {
+    var target = this;
+    return target.split(search).join(replacement);
+};
+
 app.use(function (req, res, next) {
     res.header('Access-Control-Allow-Origin', 'https://mcauth.org');
     res.header('Access-Control-Allow-Credentials', 'true');

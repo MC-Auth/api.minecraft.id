@@ -8,6 +8,7 @@ let requestSchema = new Schema({
     request_callback: String,
     request_ip: String,
     username: String,
+    uuid: String,
     token:String,
     status: {
         type: String,

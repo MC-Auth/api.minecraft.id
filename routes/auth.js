@@ -43,6 +43,7 @@ module.exports = function (express, config) {
                 util.checkUsername(username).catch(() => {
                     res.status(400).json({error: "Invalid username"})
                 }).then((uuid) => {
+                    uuid = uuid.replaceAll("-", "");
                     let id = String(crypto.SHA1(Date.now() + "" + ip + "" + Math.random() + "" + requestId + "" + Math.random()));
                     let code = String(crypto.SHA256(Date.now() + "" + requestId + "" + Math.random() + "" + ip + "" + Math.random() + "" + username + "" + Math.random() + "" + secret));
 
@@ -54,6 +55,7 @@ module.exports = function (express, config) {
                         request_callback: callback,
                         request_ip: ip,
                         username: username,
+                        uuid: uuid,
                         status: "STARTED",
                         created: new Date()
                     });
@@ -80,6 +82,7 @@ module.exports = function (express, config) {
                                 code: code,
                                 request_id: requestId,
                                 username: username,
+                                uuid: uuid,
                                 ip: ip,
                                 status: "STARTED"
                             })
