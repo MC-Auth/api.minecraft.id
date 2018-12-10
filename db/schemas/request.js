@@ -3,18 +3,27 @@ let mongoose = require('mongoose')
 let requestSchema = new Schema({
     _id: String,
     code: String,
-    request_id: String,
+    request_id: {
+        type: String,
+        index: true
+    },
     request_secret: String,
     request_callback: String,
     request_ip: String,
-    username: String,
+    username: {
+        type: String,
+        index: true
+    },
     uuid: String,
-    token:String,
+    token: String,
     status: {
         type: String,
         enum: ["STARTED", "REQUESTED", "TIMEOUT_LOGIN", "INVALID_TOKEN", "VERIFIED", "NOT_VERIFIED"]
     },
-    created: Date
+    created: {
+        type: Date,
+        expires: 600 // 10 minutes
+    }
 }, {collection: "requests"});
 module.exports = {
     schema: requestSchema,
