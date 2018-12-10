@@ -10,6 +10,7 @@ let requestSchema = new Schema({
     request_secret: String,
     request_callback: String,
     request_ip: String,
+    viaGateway: Boolean,
     username: {
         type: String,
         index: true

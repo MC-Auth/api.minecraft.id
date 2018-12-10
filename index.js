@@ -12,7 +12,7 @@ let fs = require("fs");
 let config = require("./config");
 let port = process.env.PORT || config.port || 3021;
 
-String.prototype.replaceAll = function(search, replacement) {
+String.prototype.replaceAll = function (search, replacement) {
     var target = this;
     return target.split(search).join(replacement);
 };
@@ -38,7 +38,7 @@ app.use(function (req, res, next) {
     next();
 });
 
-app.use("/.well-known",express.static(".well-known"));
+app.use("/.well-known", express.static(".well-known"));
 
 
 app.use(cookieParser(config.cookieSecret));
@@ -63,6 +63,7 @@ require("./db/db")(mongoose, config);
 app.use("/auth", require("./routes/auth")(express, config));
 app.use("/util", require("./routes/util")(express, config));
 app.use("/status", require("./routes/status")(express, config));
+app.use("/gateway", require("./routes/gateway")(express, config));
 
 function exitHandler(err) {
     if (err) {

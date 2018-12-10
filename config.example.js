@@ -13,5 +13,6 @@ config.mongo = {
 config.sessionSecret = "keyboard cat";
 config.cookieSecret = "mouse mouse";
 
+config.gatewaySecret = "Come on in!";
 
 module.exports = config;

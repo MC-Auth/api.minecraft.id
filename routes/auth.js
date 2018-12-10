@@ -1,6 +1,6 @@
 const util = require("../util");
 const crypto = require("crypto-js");
-const bodyParser = require("body-parser");
+const {authStart, authStatus} = require("./authFunctions");
 const Request = require("../db/schemas/request").model;
 const AuthLog = require("../db/schemas/authlog").model;
 
@@ -15,83 +15,11 @@ module.exports = function (express, config) {
         let ip = req.body.request_ip;// public
         let username = req.body.username;// public
 
-        if (!requestId) {
-            res.status(400).json({error: "Missing request ID"})
-            return;
-        }
-        if (!secret) {
-            res.status(400).json({error: "Missing request Secret"})
-            return;
-        }
-        if (!username) {
-            res.status(400).json({error: "Missing username"})
-            return;
-        }
-
-        Request.find({request_id: requestId}).exec(function (err, existing) {
-            if (existing && existing.length > 0) {
-                res.status(400).json({error: "Request with this ID already exists"});
-                return;
-            }
-
-            Request.find({username: username, request_ip: ip, status: {'$in': ["STARTED", "REQUESTED"]}}).lean().exec(function (err, existing) {
-                if (existing && existing.length > 0) {
-                    res.status(400).json({error: "Request with this IP <-> Username combination already exists"});
-                    return;
-                }
-
-                util.checkUsername(username).catch(() => {
-                    res.status(400).json({error: "Invalid username"})
-                }).then((uuid) => {
-                    uuid = uuid.replaceAll("-", "");
-                    let id = String(crypto.SHA1(Date.now() + "" + ip + "" + Math.random() + "" + requestId + "" + Math.random()));
-                    let code = String(crypto.SHA256(Date.now() + "" + requestId + "" + Math.random() + "" + ip + "" + Math.random() + "" + username + "" + Math.random() + "" + secret));
-
-                    let request = new Request({
-                        _id: id,
-                        code: code,
-                        request_id: requestId,
-                        request_secret: secret,
-                        request_callback: callback,
-                        request_ip: ip,
-                        username: username,
-                        uuid: uuid,
-                        status: "STARTED",
-                        created: new Date()
-                    });
-                    request.save(function (err) {
-                        if (err) return console.error(err);
-
-                        let log = new AuthLog({
-                            _id: id,
-                            time: {
-                                start: new Date(),
-                                authorize: null,
-                                verify: null,
-                                finish: null,
-                                statusCheck: null
-                            },
-                            status: "STARTED"
-                        });
-                        log.save(function (err) {
-                            if (err) return console.error(err);
-
-                            res.json({
-                                msg: "Authentication requested",
-                                id: id,
-                                code: code,
-                                request_id: requestId,
-                                username: username,
-                                uuid: uuid,
-                                ip: ip,
-                                status: "STARTED"
-                            })
-                        })
-                    })
-
-                })
-            });
-        });
+        authStart(requestId, secret, callback, ip, username, false).catch((err) => {
+            res.status(err.code).json(err);
+        }).then((result) => {
+            res.json(result);
+        })
 
     });
 
@@ -273,13 +201,17 @@ module.exports = function (express, config) {
             AuthLog.update({_id: request._id}, {$set: {"time.finish": new Date()}}, function (err) {
                 if (err) return console.error(err);
 
-                let redirectUrl = request.request_callback + "?id=" + request._id + "&request_id=" + request.request_id + "&code=" + request.code;
-                if (style === "simple") {
-                    res.set('Content-Type', 'text/html');
-                    res.send("You should be redirected automatically. If not, <a href='" + redirectUrl + "'>click here</a>.\n" +
-                        "<script>window.location = '" + redirectUrl + "';</script>")
+                if (request.viaGateway) {
+                    res.redirect("/gateway/__callback?id=" + request._id + "&rid=" + request.request_id + "&c=" + request.code + "&u=" + request.username);
                 } else {
-                    res.redirect(redirectUrl);
+                    let redirectUrl = request.request_callback + "?id=" + request._id + "&request_id=" + request.request_id + "&code=" + request.code;
+                    if (style === "simple") {
+                        res.set('Content-Type', 'text/html');
+                        res.send("You should be redirected automatically. If not, <a href='" + redirectUrl + "'>click here</a>.\n" +
+                            "<script>window.location = '" + redirectUrl + "';</script>")
+                    } else {
+                        res.redirect(redirectUrl);
+                    }
                 }
             })
         });
@@ -291,40 +223,17 @@ module.exports = function (express, config) {
         let requestSecret = req.body.request_secret;
         let code = req.body.code;
 
-        Request.findOne({_id: id}, function (err, request) {
-            if (err) return console.error(err);
-            if (!request) {
-                res.status(404).json({error: "Request not found"})
-                return;
-            }
+        if (requestId && requestId.startsWith("mca")) {
+            res.status(403).end();
+            return;
+        }
 
-            if (request.request_id !== requestId) {
-                res.status(400).json({error: "Request ID mismatch"})
-                return;
-            }
-            if (request.request_secret !== requestSecret) {
-                res.status(400).json({error: "Request Secret mismatch"})
-                return;
-            }
-            if (request.code !== code) {
-                res.status(400).json({error: "Code mismatch"})
-                return;
-            }
-
-
-            AuthLog.update({_id: request._id}, {$set: {"time.statusCheck": new Date()}}, function (err) {
-                if (err) return console.error(err);
-
-                res.json({
-                    id: request._id,
-                    request_id: request.request_id,
-                    username: request.username,
-                    uuid: request.uuid,
-                    status: request.status === "VERIFIED" ? "VERIFIED" : "NOT_VERIFIED",
-                    fail_reason: request.status === "VERIFIED" ? "" : request.status
-                })
-            })
+        authStatus(id, requestId, requestSecret, code, false).catch((err) => {
+            res.status(err.code).json(err);
+        }).then((result) => {
+            res.json(result);
         });
+
     });
 
     return router;
