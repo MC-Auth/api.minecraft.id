@@ -51,7 +51,6 @@ function authStart(requestId, secret, callback, ip, username, gateway) {
                         error: "Invalid username"
                     });
                 }).then((uuid) => {
-                    uuid = uuid.replaceAll("-", "");
                     let id = String(crypto.SHA1(Date.now() + "" + ip + "" + Math.random() + "" + requestId + "" + Math.random()));
                     let code = String(crypto.SHA256(Date.now() + "" + requestId + "" + Math.random() + "" + ip + "" + Math.random() + "" + username + "" + Math.random() + "" + secret));
 
