@@ -12,9 +12,15 @@ let fs = require("fs");
 let config = require("./config");
 let port = process.env.PORT || config.port || 3021;
 
+const allowedOrigins = ["https://mcauth.org", "https://minecraft.id"];
 app.use(function (req, res, next) {
-    res.header('Access-Control-Allow-Origin', 'https://mcauth.org');
-    res.header('Access-Control-Allow-Credentials', 'true');
+    let origin = req.headers["origin"];
+    if (origin && allowedOrigins.indexOf(origin) !== -1) {
+        res.header('Access-Control-Allow-Origin', 'https://mcauth.org');
+        res.header('Access-Control-Allow-Credentials', 'true');
+    } else if (origin) {
+        console.warn("Disallowed Origin " + origin);
+    }
     if (req.method === 'OPTIONS') {
         res.header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT");
         res.header("Access-Control-Allow-Headers", "X-Requested-With, Accept, Content-Type, Origin");
