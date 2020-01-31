@@ -16,7 +16,7 @@ const allowedOrigins = ["https://mcauth.org", "https://minecraft.id"];
 app.use(function (req, res, next) {
     let origin = req.headers["origin"];
     if (origin && allowedOrigins.indexOf(origin) !== -1) {
-        res.header('Access-Control-Allow-Origin', 'https://mcauth.org');
+        res.header('Access-Control-Allow-Origin', origin);
         res.header('Access-Control-Allow-Credentials', 'true');
     } else if (origin) {
         console.warn("Disallowed Origin " + origin);
@@ -51,7 +51,7 @@ app.use(session({
     saveUninitialized: false,
     cookie: {
         // secure:true,
-        // domain: ".mcauth.org",
+        // domain: ".minecraft.id",
         // path: "/",
         // httpOnly: false
     }
