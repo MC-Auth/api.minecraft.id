@@ -91,7 +91,7 @@ module.exports = function (express, config) {
                     if (err) return console.error(err);
 
                     let expires = new Date(Date.now() + 2.628e+9);
-                    res.cookie("mcauth_token", util.base64encode(token), {expires: expires, domain: ".mcauth.org", path: "/", secure: true});
+                    res.cookie("mcauth_token", util.base64encode(token), {expires: expires, domain: ".minecraft.id", path: "/", secure: true});
                     res.redirect(actualCallback + "?mcauth_success=true&mcauth_status=VERIFIED&mcauth_msg=Verified&mcauth_code=" + code);
                 })
             }

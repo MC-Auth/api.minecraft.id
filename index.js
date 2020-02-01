@@ -12,9 +12,15 @@ let fs = require("fs");
 let config = require("./config");
 let port = process.env.PORT || config.port || 3021;
 
+const allowedOrigins = ["https://mcauth.org", "https://minecraft.id"];
 app.use(function (req, res, next) {
-    res.header('Access-Control-Allow-Origin', 'https://mcauth.org');
-    res.header('Access-Control-Allow-Credentials', 'true');
+    let origin = req.headers["origin"];
+    if (origin && allowedOrigins.indexOf(origin) !== -1) {
+        res.header('Access-Control-Allow-Origin', origin);
+        res.header('Access-Control-Allow-Credentials', 'true');
+    } else if (origin) {
+        console.warn("Disallowed Origin " + origin);
+    }
     if (req.method === 'OPTIONS') {
         res.header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT");
         res.header("Access-Control-Allow-Headers", "X-Requested-With, Accept, Content-Type, Origin");
@@ -45,7 +51,7 @@ app.use(session({
     saveUninitialized: false,
     cookie: {
         // secure:true,
-        // domain: ".mcauth.org",
+        // domain: ".minecraft.id",
         // path: "/",
         // httpOnly: false
     }
@@ -54,6 +60,10 @@ app.use(session({
 // mongoose.plugin(util.idPlugin);
 require("./db/db")(mongoose, config);
 
+
+app.get("/", function (req,res) {
+    res.json({msg: "Hello World!"})
+})
 
 app.use("/auth", require("./routes/auth")(express, config));
 app.use("/util", require("./routes/util")(express, config));

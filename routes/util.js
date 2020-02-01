@@ -29,7 +29,7 @@ module.exports = function (express, config) {
             online: false
         };
 
-        pinger.ping("mc.mcauth.org", 25565, (err, result) => {
+        pinger.ping("server.minecraft.id", 25565, (err, result) => {
             console.log(result);
 
             res.json(info);
