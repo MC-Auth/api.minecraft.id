@@ -60,7 +60,7 @@ module.exports = function (express, config) {
             req.session.auth_username = request.username;
             req.session.auth_style = style;
 
-            console.log("[AUTH] REQUEST for "+username);
+            console.log(" [AUTH] REQUEST for "+username);
 
             request.status = "REQUESTED";
             request.save(function (err) {
@@ -138,7 +138,7 @@ module.exports = function (express, config) {
                 return;
             }
 
-            console.log("[AUTH] VERIFY for "+request.username);
+            console.log("  [AUTH] VERIFY for "+request.username);
 
             if (!request.token || request.token !== token) {
                 request.status = "INVALID_TOKEN";
@@ -204,7 +204,7 @@ module.exports = function (express, config) {
             res.cookie("mcauth_style", "", {expires: expires, domain: ".minecraft.id", path: "/", secure: true});
             req.session.destroy();
 
-            console.log("[AUTH] FINISH for "+request.username);
+            console.log("   [AUTH] FINISH for "+request.username);
 
             AuthLog.update({_id: request._id}, {$set: {"time.finish": new Date()}}, function (err) {
                 if (err) return console.error(err);
