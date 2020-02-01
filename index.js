@@ -61,6 +61,10 @@ app.use(session({
 require("./db/db")(mongoose, config);
 
 
+app.get("/", function (req,res) {
+    res.json({msg: "Hello World!"})
+})
+
 app.use("/auth", require("./routes/auth")(express, config));
 app.use("/util", require("./routes/util")(express, config));
 app.use("/status", require("./routes/status")(express, config));
