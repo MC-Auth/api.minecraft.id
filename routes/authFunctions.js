@@ -80,6 +80,8 @@ function authStart(requestId, secret, callback, ip, username, gateway) {
                                 finish: null,
                                 statusCheck: null
                             },
+                            username: username,
+                            request_id: id,
                             status: "STARTED"
                         });
                         log.save(function (err) {

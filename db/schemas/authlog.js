@@ -9,6 +9,8 @@ let logSchema = new Schema({
         finish: Date,
         statusCheck: Date
     },
+    username: String,
+    request_id: String,// internal ID reference to the request collection
     status: {
         type: String,
         enum: ["STARTED", "REQUESTED", "TIMEOUT_LOGIN", "INVALID_TOKEN", "VERIFIED", "NOT_VERIFIED"]
