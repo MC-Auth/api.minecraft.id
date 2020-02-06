@@ -8,8 +8,12 @@ function checkUsername(username) {
                 reject();
                 return;
             }
-            let json = JSON.parse(body);
-            resolve(json["id"]);
+            try {
+                let json = JSON.parse(body);
+                resolve(json["id"]);
+            } catch (e){
+                reject(e);
+            }
         })
     })
 }
