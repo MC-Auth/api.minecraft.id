@@ -67,6 +67,7 @@ module.exports = function (express, config) {
                 if (err) return console.error(err);
 
                 AuthLog.update({_id: request._id}, {$set: {"time.authorize": new Date(), status: "REQUESTED"}}, function (err) {
+                    if(err) console.log(err)
                     res.redirect("https://minecraft.id/#/auth");
                 })
             })
