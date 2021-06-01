@@ -19,6 +19,7 @@ module.exports = function (express, config) {
             res.status(400).json({error: "Missing callback URL"})
             return;
         }
+        let style = req.query.style || "default";
 
         function startNewAuth() {
             let requestId = "mca" + String(crypto.SHA1(username + "" + Date.now() + Math.random()));
@@ -27,7 +28,7 @@ module.exports = function (express, config) {
             authStart(requestId, requestSecret, callback, req.realAddress, username, true).catch((err) => {
                 res.redirect(callback + "?mcauth_success=false&mcauth_status=ERROR&mcauth_msg=" + err.error);
             }).then((result) => {
-                res.redirect("/auth/authorize/" + result.id + "?request_id=" + result.request_id + "&username=" + result.username);
+                res.redirect("/auth/authorize/" + result.id + "?request_id=" + result.request_id + "&username=" + result.username + "&style=" + style);
             })
         }
 
