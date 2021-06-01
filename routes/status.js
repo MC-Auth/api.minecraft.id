@@ -7,12 +7,12 @@ const AuthLog = require("../db/schemas/authlog").model;
 module.exports = function (express, config) {
     let router = express.Router();
 
-    router.get("/",function (req,res) {
-       Request.count({},function (err,count) {
-           res.json({
-               pendingRequests:count
-           })
-       })
+    router.get("/", function (req, res) {
+        Request.count({}, function (err, count) {
+            res.json({
+                pendingRequests: count
+            })
+        })
     });
 
     return router;

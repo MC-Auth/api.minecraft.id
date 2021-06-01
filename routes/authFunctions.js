@@ -51,7 +51,7 @@ function authStart(requestId, secret, callback, ip, username, gateway) {
                         error: "Invalid username"
                     });
                 }).then((uuid) => {
-                    uuid = uuid.replace(/-/g,'');
+                    uuid = uuid.replace(/-/g, '');
                     let id = String(crypto.SHA1(Date.now() + "" + ip + "" + Math.random() + "" + requestId + "" + Math.random()));
                     let code = String(crypto.SHA256(Date.now() + "" + requestId + "" + Math.random() + "" + ip + "" + Math.random() + "" + username + "" + Math.random() + "" + secret));
 
@@ -142,13 +142,13 @@ function authStatus(id, requestId, requestSecret, code, gateway) {
 
             if (request.viaGateway !== gateway) {
                 reject({
-                    code:403,
+                    code: 403,
                     error: "Gateway mismatch"
                 });
                 return;
             }
 
-            AuthLog.update({_id: request._id}, {$set: {"time.statusCheck": new Date()}}, function (err) {
+            AuthLog.updateOne({_id: request._id}, {$set: {"time.statusCheck": new Date()}}, function (err) {
                 if (err) return console.error(err);
 
                 let r = {
@@ -160,7 +160,7 @@ function authStatus(id, requestId, requestSecret, code, gateway) {
                     fail_reason: request.status === "VERIFIED" ? "" : request.status
                 };
                 if (gateway) {
-                    r["callback"]=request.request_callback;
+                    r["callback"] = request.request_callback;
                 }
                 resolve(r);
             });

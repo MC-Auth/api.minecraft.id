@@ -15,7 +15,7 @@ module.exports = function (express, config) {
         let ip = req.body.request_ip;// public
         let username = req.body.username;// public
 
-        console.log("[AUTH] START for "+username);
+        console.log("[AUTH] START for " + username);
 
         authStart(requestId, secret, callback, ip, username, false).catch((err) => {
             res.status(err.code).json(err);
@@ -60,14 +60,14 @@ module.exports = function (express, config) {
             req.session.auth_username = request.username;
             req.session.auth_style = style;
 
-            console.log(" [AUTH] REQUEST for "+username);
+            console.log(" [AUTH] REQUEST for " + username);
 
             request.status = "REQUESTED";
             request.save(function (err) {
                 if (err) return console.error(err);
 
-                AuthLog.update({_id: request._id}, {$set: {"time.authorize": new Date(), status: "REQUESTED"}}, function (err) {
-                    if(err) console.log(err)
+                AuthLog.updateOne({_id: request._id}, {$set: {"time.authorize": new Date(), status: "REQUESTED"}}, function (err) {
+                    if (err) console.log(err)
                     res.redirect("https://minecraft.id/#/auth");
                 })
             })
@@ -139,14 +139,14 @@ module.exports = function (express, config) {
                 return;
             }
 
-            console.log("  [AUTH] VERIFY for "+request.username);
+            console.log("  [AUTH] VERIFY for " + request.username);
 
             if (!request.token || request.token !== token) {
                 request.status = "INVALID_TOKEN";
                 request.save(function (err) {
                     if (err) return console.error(err);
 
-                    AuthLog.update({_id: request._id}, {$set: {"time.verify": new Date(), "status": "INVALID_TOKEN"}}, function (err) {
+                    AuthLog.updateOne({_id: request._id}, {$set: {"time.verify": new Date(), "status": "INVALID_TOKEN"}}, function (err) {
                         if (err) return console.error(err);
 
                         res.json({
@@ -160,7 +160,7 @@ module.exports = function (express, config) {
                 request.save(function (err) {
                     if (err) return console.error(err);
 
-                    AuthLog.update({_id: request._id}, {$set: {"time.verify": new Date(), "status": "VERIFIED"}}, function (err) {
+                    AuthLog.updateOne({_id: request._id}, {$set: {"time.verify": new Date(), "status": "VERIFIED"}}, function (err) {
                         if (err) return console.error(err);
 
                         res.json({
@@ -205,9 +205,9 @@ module.exports = function (express, config) {
             res.cookie("mcauth_style", "", {expires: expires, domain: ".minecraft.id", path: "/", secure: true});
             req.session.destroy();
 
-            console.log("   [AUTH] FINISH for "+request.username);
+            console.log("   [AUTH] FINISH for " + request.username);
 
-            AuthLog.update({_id: request._id}, {$set: {"time.finish": new Date()}}, function (err) {
+            AuthLog.updateOne({_id: request._id}, {$set: {"time.finish": new Date()}}, function (err) {
                 if (err) return console.error(err);
 
                 if (request.viaGateway) {

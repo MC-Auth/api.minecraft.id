@@ -61,7 +61,7 @@ app.use(session({
 require("./db/db")(mongoose, config);
 
 
-app.get("/", function (req,res) {
+app.get("/", function (req, res) {
     res.json({msg: "Hello World!"})
 })
 
